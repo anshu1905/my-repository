@@ -1,0 +1,108 @@
+#R PROGRAMMING DATA ANALYSIS ON MOVIE REVIEWS
+#load the following packages
+
+library(ggplot2)
+library(dplyr)
+library(caret)
+library(statsr)
+library(gridExtra)
+library(GGally)
+library(ggthemes)
+
+load("movies.Rdata")
+#The research question
+#The analysis in this document is intended to answer the following research question based on the movies dataset: 
+#Is there association between audience score and critics score and imdb_rating (The internet movie database rating). 
+#Answering this question will help conform my assumption that critic rating can be reliably used to predict audince rating.
+#These are the variables to be considered for EDA
+
+summary(movies$imdb_rating)
+class(movies$imdb_rating)
+
+summary(movies$imdb_num_votes)
+class(movies$imdb_num_votes)
+
+summary(movies$critics_rating)
+class(movies$critics_rating)
+
+summary(movies$critics_score)
+class(movies$critics_score)
+
+summary(movies$audience_rating)
+class(movies$audience_rating)
+
+summary(movies$audience_score)
+class(movies$audience_score)
+
+set.seed(3974)
+inTrain <- createDataPartition(y=movies$imdb_rating, p=0.994, list=FALSE)
+training <- movies[inTrain,]
+testing <- movies[-inTrain,]
+dim(training)
+dim(testing)
+
+
+p1 <- ggplot(data = training, aes(x = imdb_rating)) + geom_histogram(colour = "black", fill = "skyblue", binwidth = .3)
+
+p2 <- ggplot(data = training, aes(x = imdb_num_votes)) + geom_histogram(colour = "black", fill = "salmon", binwidth = 40000, alpha = 0.5)
+
+p3 <- ggplot(data = training, aes(x = critics_score)) + geom_histogram(colour = "black", fill = "cyan", binwidth = 5, alpha = 0.5)
+
+p4 <- ggplot(data = training, aes(x = audience_score)) + geom_histogram(colour = "black", fill = "yellow", binwidth = 5, alpha = 0.7)
+
+grid.arrange(p1, p2, p3, p4, nrow = 1, ncol = 4)
+
+
+#Exploratory Data Analysis
+
+#audience_score->response variable
+#critics_score->predictor variable
+#simple linear regression to determine the relation 
+ 
+model1=lm(audience_score~critics_score,data=movies)
+model1
+summary(model1)
+ggplot(data = movies, aes(x = critics_score, y = audience_score)) +
+  geom_jitter() +  geom_smooth(method = "lm", se = FALSE)
+#These plots appaer to show that there is a positive linear relationship between the two variables. This result is helpful to answer the research question and we need to do further statistical analysis.
+
+
+model2=lm(audience_score~imdb_rating,data=movies)
+model2
+summary(model2)
+ggplot(data = movies, aes(x = imdb_rating, y = audience_score)) +
+  geom_jitter() +  geom_smooth(method = "lm", se = FALSE)
+#These plots appaer to show that there is a positive linear relationship between the two variables. This result is helpful to answer the research question and we need to do further statistical analysis.
+
+model3=lm(imdb_rating~critics_score,data=movies)
+model3
+summary(model3)
+ggplot(data = movies, aes(x = critics_score, y = imdb_rating)) +
+  geom_jitter() +  geom_smooth(method = "lm", se = FALSE)
+#These plots appaer to show that there is a positive linear relationship between the two variables. This result is helpful to answer the research question and we need to do further statistical analysis.
+
+#From the summary we can analyse that P-value is less than 0.05 that is 95% confidence level hence audience_score,imdb_rating are significant predictors.
+
+lmfitlast <- lm(audience_score ~ critics_score, data = movies)
+par(mfrow=c(2,2), fig.width = 5, fig.height= 5)
+hist(lmfitlast$residuals, col="blue")
+qqnorm(lmfitlast$residuals)
+qqline(lmfitlast$residuals)  
+plot(abs(lmfitlast$residuals) ~ abs(lmfitlast$fitted))
+summary(lmfitlast)
+
+#predict a value 
+m=readline(prompt="Enter the movie title:")
+cs=as.integer(readline(prompt="Enter the critc score:"))
+newmovie=data.frame(title=m,critics_score=cs)
+predict(lmfitlast,newmovies)
+predict(lmfitlast, newmovies, interval = "prediction", level = 0.95)
+
+#A statistical analysis using data from the movies dataset was conducted to determine if there is any association between audience score and critics score.
+#The The results of the analysis suggest that there is strong positive linear relationship between critics score and audience score and critics score is a significant predictor of audience score. 
+#This anaylysis shows that data on critics score can be used to predict audience satisfaction. 
+#Using a more thorough analysis, Movie industries can uses similar results in producing movies that are more liked by the audience.
+
+
+
+
