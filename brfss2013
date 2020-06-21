@@ -1,0 +1,113 @@
+ #R programming
+ load("C:\\Users\\Anshuman\\Downloads\\brfss2013.RData")
+
+
+#Research Question1:
+#First I want to explore from Main Survey - Section 2 - Healthy Days 
+#Health-Related Quality of Life
+
+#Variables will be used are:
+
+#    physhlth: Number Of Days Physical Health Not Good
+#    menthlth: Number Of Days Mental Health Not Good
+#    poorhlth: Poor Physical Or Mental Health
+
+
+
+#Ans
+hist(brfss2013$physhlth,col="red",main="Number Of Days Physical Health Not Good")
+
+
+
+#Research quesion 2:
+#Second, I would like to see if there exists any relation between how many hours one sleeps and certain health conditions such as Heart Attack, Depressive Disorder etc.
+
+#Variables will be used are:
+
+ # sleptim1: How Much Time Do You Sleep
+ # cvdinfr4: Ever Diagnosed With Heart Attack
+ # addepev2: Ever Told You Had A Depressive Disorder.
+
+#Ans
+# Create a subset of data
+vars <- names(brfss2013) %in% c("sleptim1", "cvdinfr4", "addepev2")
+subdata <- brfss2013[vars]
+# make a backup
+subdata1 <- subdata
+# convert factor levels into numeric levels
+subdata1$addepev2 <- ifelse(subdata$addepev2=="Yes", 1, 0)
+subdata1$cvdinfr4 <- ifelse(subdata$cvdinfr4=="Yes", 1, 0)
+install.packages("Hmisc")
+library("Hmisc")
+
+subdata1 <- na.delete(subdata1)
+# find correlation
+cor(subdata1)
+instal.packages("corrplot")
+library(corrplot)
+M <- cor(subdata1)
+corrplot(M, method="ellipse")
+
+#1. Sleep time and Depressive Disorder has negative correlation, which mean if one sleeps less, chances for Depressive Disorder go high (this is not a causation, but just an initial inference). 
+#2. Sleep time and Ever Diagnosed With Heart Attack shows almost no relation among them (corerlation is almost zero)
+
+
+#Research Question 3:
+#Lastly, I would like to see if health condition such as Heart Attack can be predicted using sleep time, Cholesterol, blood pressure etc.
+
+#Variables I will be using for that are:
+
+    #cvdinfr4: Ever Diagnosed With Heart Attack
+    #bloodcho: Ever Had Blood Cholesterol Checked
+    #cholchk: How Long Since Cholesterol Checked
+    #toldhi2: Ever Told Blood Cholesterol High
+    #bphigh4: Ever Told Blood Pressure High
+    #sleptim1: How Much Time Do You Sleep
+
+
+vars <- names(brfss2013) %in% c("cvdinfr4", "bloodcho", "toldhi2", "bphigh4", "sleptim1")
+subdata <- brfss2013[vars]
+
+# Replace NA with "No"s
+subdata$bloodcho <- replace(subdata$bloodcho, which(is.na(subdata$bloodcho)), "No")
+#check replacement
+summary(subdata$bloodcho)
+
+# Replace NA with "No"s
+subdata$bphigh4 <- replace(subdata$bphigh4, which(is.na(subdata$bphigh4)), "No")
+#check replacement
+summary(subdata$bphigh4)
+
+# Sleep time NA to be replaced with mean of the data
+mean(subdata$sleptim1,na.rm = T)
+subdata$sleptim1 <- replace(subdata$sleptim1, which(is.na(subdata$sleptim1)), 7)
+#check replacement
+summary(subdata$sleptim1)
+
+
+
+subdata$toldhi2 <- replace(subdata$toldhi2, which(is.na(subdata$toldhi2)), "No")
+#check replacement
+summary(subdata$toldhi2)
+
+
+subdata$cvdinfr4 <- replace(subdata$cvdinfr4, which(is.na(subdata$cvdinfr4)), "No")
+#check replacement
+summary(subdata$cvdinfr4)
+subdata1<-subdata
+subdata1$bphigh4 <- as.factor(ifelse(subdata1$bphigh4=="Yes", "Yes", 
+                           (ifelse(subdata1$bphigh4=="Yes, but female told only during pregnancy", "Yes",
+                           (ifelse(subdata1$bphigh4=="Told borderline or pre-hypertensive", "Yes",
+                                   "No"))))))
+# table the data
+summary(subdata1$bphigh4)
+
+# Fit the logistic regression
+fit <- glm(cvdinfr4 ~ ., data=subdata, family = "binomial")
+print(fit)
+summary(fit)
+
+#From the summary we can analyse that sleeptime is a insignificant predictor value for heart attack prediction this is because P-value is greater than 0.05 (95% significance level)
+#The others are very significant predictors for heart attack prediction.
+
+
