@@ -1,57 +1,80 @@
 
 library("dplyr")
+
 #filter,pipe,select,mutate,arrange,group,summarise....DATA
+
 library("ggplot2")
 
 head(mpg)
+
 str(mpg)
+
 names(mpg)
+
 dim(mpg)
 
 hist(mpg$cty,col="red")
+
 summary(mpg$cty)
 
 hist(mpg$hwy,col="green")
+
 summary(mpg$hwy)
 
 hist(mpg$cyl,col="blue")
+
 summary(mpg$cyl)
 
 table(mpg$manufacturer)
+
 qplot(manufacturer, data=mpg, geom="bar", fill=manufacturer)
 
 table(mpg$model)
+
 qplot(model, data=mpg, geom="bar", fill=model)
 
 table(mpg$class)
+
 qplot(class, data=mpg, geom="bar", fill=class)
 
 table(mpg$drv)
+
 qplot(drv, data=mpg, geom="bar", fill=drv)
 
 table(mpg$trans)
+
 qplot(trans, data=mpg, geom="bar", fill=trans)
 
 table(mpg$year)
+
 qplot(factor(year), data=mpg, geom="bar", fill=factor(year))
 
 names(mpg)
 
 mpg%>%
+
 +select(3,8,9)#column no.
 
 model1=lm(hwy~displ,data=mpg)
+
 model1
+
 summary(model1)
+
 #displacement is a significant predictor since P-value is less than 0.05 but R-squared is between(0.5-0.6) which means they have a relationship but not completely linear
 
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
-  geom_point(mapping = aes(color = class)) + 
-  geom_smooth()
+
+geom_point(mapping = aes(color = class)) + 
+
+geom_smooth()
+
 
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, color=class)) +
-  facet_wrap(~ class, nrow = 2)
+
+geom_point(mapping = aes(x = displ, y = hwy, color=class)) +
+
+facet_wrap(~ class, nrow = 2)
 
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy, color=drv)) +
@@ -59,38 +82,57 @@ ggplot(data = mpg) +
 
 
 model2=lm(hwy~cty,data=mpg)
+
 model2
+
 summary(model2)
+
 #It city milage is a significant predictor because P-value is less than 0.05 and R-squared is almost equal to 1 which means that there is strong positive linear relationship
 
 ggplot(data=mpg,aes(x=cty,y=hwy))+
-   geom_jitter()+
-   geom_smooth(method="lm",se=FALSE)
+
+geom_jitter()+
+
+geom_smooth(method="lm",se=FALSE)
 
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = cty, y = hwy, color=class)) +
-  facet_wrap(~ class, nrow = 2)
+
+geom_point(mapping = aes(x = cty, y = hwy, color=class)) +
+
+facet_wrap(~ class, nrow = 2)
 
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = cty, y = hwy, color=drv)) +
-  facet_wrap(~ drv,nrow=2)
+
+geom_point(mapping = aes(x = cty, y = hwy, color=drv)) +
+
+facet_wrap(~ drv,nrow=2)
  
 
 plot(abs(model2$residuals)~abs(model2$fitted))
 
 hist(model2$residuals)
+
 qqnorm(model2$residuals)
+
 qqline(model2$residuals)
 
 
  mpg%>%
+
 + group_by(drv)%>%
+
 + summarise(n=n(),avg=mean(cty,na.rm=T))%>%
+
 + mutate(test=n*avg)%>%
+
 + arrange(cty)
 
- mpg%>%
+mpg%>%
+
 + group_by(drv)%>%
+
 + summarise(n=n(),avg1=mean(hwy,na.rm=T))%>%
+
 + mutate(test1=n*avg1)%>%
+
 + arrange(hwy)
