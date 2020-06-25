@@ -1,0 +1,61 @@
+#Microsoft Stock Data ananlysis
+
+library(tidyverse)
+library(quantmod)
+
+msft<-getSymbols("MSFT",auto.assign=F)
+
+head(msft)
+
+dim(msft)
+
+names(msft)
+
+str(msft)
+
+summary(msft)
+
+
+date=readline(prompt="Enter the year for which you want the stock data:-")
+chartSeries(msft,
+		type="line",
+		subset=date,
+		theme=chartTheme("black")
+		)
+
+
+date1=readline(prompt="Enter the year for which you want the stock data:-")
+chartSeries(msft,
+		type="bar",
+		subset=date1,
+		theme=chartTheme("black")
+		)
+
+
+date2=readline(prompt="Enter the year for which you want the stock data:-")
+chartSeries(msft,
+		type="candlesticks",
+		subset=date2,
+		theme=chartTheme("black")
+		)
+
+
+date3=readline(prompt="Enter the date in this format (yyyy-mm-dd::yyyy-mm-dd) for which you want the stock data:-")
+chartSeries(msft,
+		type="auto",
+		subset=date3,
+		theme=chartTheme("black")
+		)
+
+
+
+#Bollinger Bands
+#Relative Strength Index
+#EMA->Exponential Moving Average
+#MACD->Moving Average Convergence Divergence
+date4=readline(prompt="Enter the year for which you want the stock data:-")
+chartSeries(msft,
+		subset=date4,
+		TA=c(addBBands(n=20,sd=2),addEMA(n=20),addMACD(),addRSI()),
+		theme=chartTheme("white")
+		)
