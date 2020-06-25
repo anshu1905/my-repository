@@ -1,0 +1,39 @@
+library(tidyverse)
+library(quantmod)
+MSFT<-getSymbols("MSFT",auto.assign=F)
+head(MSFT)
+dim(MSFT)
+names(MSFT)
+str(MSFT)
+summary(MSFT)
+model1=lm(MSFT.Adjusted~MSFT.Open+MSFT.High+MSFT.Low+MSFT.Close+MSFT.Volume,data=MSFT)
+model1
+summary(model1)
+
+FB<-getSymbols("FB",auto.assign=F)
+head(FB)
+dim(FB)
+names(FB)
+str(FB)
+summary(FB)
+model2=lm(FB.Adjusted~FB.Open+FB.High+FB.Low+FB.Close+FB.Volume,data=FB)
+model2
+sumary(model2)
+
+#From the summary of the model1 and model2 we come to know which are the significant predictors for the Adjusted Value (P-value<0.05 and R-squared analysis)
+#dailyReturn gives the adjusted value which is a function in quantmod package
+
+msft=dailyReturn(Ad(getSymbols("MSFT",auto.assign=F)))
+head(msft)
+#For analyzing the buy signal
+hist(msft,40,col="red")
+
+fb=dailyReturn(Ad(getSymbols("FB",auto.assign=F)))
+head(msft)
+#For analyzing the buy signal
+hist(fb,40,col="blue")
+
+
+combine=merge(msft,fb,all=F)
+head(combine)
+plot(combine)
