@@ -1,0 +1,80 @@
+#Financial price data is typically a time series, simply meaning that it is indexed as a sequence ordered by time. 
+#Generally, the data contains five observations per time interval for any particular financial equity instrument,
+#namely the open price, high price, low price, close price and volume (number of transactions).
+
+This example uses end-of-day data for Tesla Inc from Yahoo Finance.
+#load the library
+
+library("quantmod")
+library("tidyverse")
+
+#Load the data(TESLA)
+tsla<-getSymbols("TSLA",auto.assign=FALSE)#Returns stock data for the variables that you choose
+head(tsla)
+glimpse(tsla)
+
+#Store Closing Price
+tsla_cl=tsla$TSLA.Close
+head(tsla_cl)
+tsla_cl2=Ad(tsla)
+head(tsla_cl2)
+
+#Use the lag function -> Shifts the values in a vector back a number of series the user chooses
+
+head(lag.xts(tsla_cl,2))
+
+#lag((vector,matrix,univariate,bivariate)time series,k) ,k->the number of lags you want
+
+#remove scientific notations from the required data
+options(scipen=9999)
+
+#Create a daily% change vector
+
+daily_change=tsla_cl/lag.xts(tsla_cl,1)-1
+head(daily_change)
+
+hist(daily_change,40,col="red",main="Daily Change Analysis")
+
+#From the histogram we can analayze that close price at -10% is very low and +10% is larger hence we consider 0.04 for the buy signal
+
+buy_signal=0.04
+signal=c(NULL)
+
+for(i in 2:length(tsla_cl))
+{
+	if(daily_change[i]>buy_signal){
+		signal[i]=1
+	}else{
+		signal[i]=0
+	}
+}
+#Draw the chart
+
+signal<-reclass(signal,tsla_cl)
+head(signal,20)
+chartSeries(tsla_cl,
+		type="l",
+		theme=chartTheme("black"))
+addTA(signal,type="S",col="red")
+
+
+chartSeries(tsla_cl,
+            type="bar",
+            theme=chartTheme('black'))
+
+
+
+chartSeries(tsla_cl,
+            type="candlesticks",
+            theme=chartTheme('black'))
+
+
+
+chartSeries(tsla_cl,
+            type="auto",
+            theme=chartTheme('black'))
+
+
+
+
+
